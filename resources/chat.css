@@ -1,0 +1,56 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+}
+
+h1 {
+    margin: 0;
+    padding: 5px 0 5px 10px;
+}
+
+h3 {
+    margin: 0;
+    padding: 0;
+}
+
+#chat {
+    border: 1px solid black;
+    margin: 5px 5px 5px 10px;
+    padding: 5px;
+    width: 75%;
+    height: 500px;
+    overflow-y: scroll;
+}
+
+#chat ul {
+    margin: 0 0 0 0;
+    padding: 3px;
+}
+
+#chat ul li {
+    display: inline;
+}
+
+li.nick {
+  font-weight: bold;
+  padding: 0 5px 0 0;
+}
+
+#lower {
+    width: 70%;
+}
+
+#msgleft {
+    margin: 5px 0 5px 5px;
+    padding: 5px;
+    float: left;
+}
+
+#message {
+    border: 1px solid black;
+    margin: 5px 0 5px 0;
+    padding: 5px;
+    width: 75%;
+    float: left;
+}
