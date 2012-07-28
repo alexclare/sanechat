@@ -1,0 +1,11 @@
+sanechat
+--------
+A tiny Node.js & Websocket chat server and client. The server enforces
+certain policies to promote thoughtful messages, patience, and perhaps
+sanity.
+
+License
+-------
+Copyright (C) 2012 S714726
+
+Distributed under the GNU General Public License version 3.
