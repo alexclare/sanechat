@@ -45,8 +45,9 @@ io.sockets.on('connection', function (socket) {
     var intid = setInterval(function () {
       socket.get('allotment', function (err, allotment) {
         if (!err) {
-          socket.set('allotment', allotment+2);
-          socket.volatile.emit('allotment', allotment+2);
+          var total = (allotment >= 140) ? 140 : allotment + 2;
+          socket.set('allotment', total);
+          socket.volatile.emit('allotment', total);
         }
       });
     }, 1000);
@@ -81,7 +82,7 @@ io.sockets.on('connection', function (socket) {
       if (!err) clearInterval(intid);
     });
     socket.get('nick', function (err, nick) {
-      if (!err) {
+      if (!err && nick) {
         io.sockets.in('chat').emit('left', nick);
       }
     });
