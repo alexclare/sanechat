@@ -4,20 +4,20 @@ var app  = require('http').createServer(handler)
   , io   = require('socket.io').listen(app);
 
 function handler (req, res) {
-  var url = './resources' + req.url;
-  if (url == './resources/')
-    url += 'index.html';
+  var local = './resources' + req.url;
+  if (local == './resources/')
+    local += 'index.html';
 
   var mimeType;
-  switch (path.extname(url)) {
+  switch (path.extname(local)) {
     case '.css': mimeType = 'text/css'; break;
     case '.js':  mimeType = 'text/javascript'; break;
     default:     mimeType = 'text/html';
   }
   
-  fs.exists(url, function (exists) {
+  fs.exists(local, function (exists) {
     if (exists) {
-      fs.readFile(url, function (err, data) {
+      fs.readFile(local, function (err, data) {
         if (err) {
           res.writeHead(500);
           res.end('Internal Server Error');
@@ -36,32 +36,51 @@ function handler (req, res) {
 app.listen(3000);
 
 io.sockets.on('connection', function (socket) {
-  socket.on('nick', function(nick) {
-    socket.set('nick', nick, function() { });
+  socket.on('nick', function (nick) {
+    // Basic properties of a user: Nick and speech allotment
+    socket.set('nick', nick, function () { });
+    socket.set('allotment', 0);
+
+    // Timer to increase speech allotment and its destructor
+    var intid = setInterval(function () {
+      socket.get('allotment', function (err, allotment) {
+        if (!err) {
+          socket.set('allotment', allotment+2);
+          socket.volatile.emit('allotment', allotment+2);
+        }
+      });
+    }, 1000);
+    socket.set('intid', intid);
+
+    // Finally, join the room and broadcast presence
     socket.join('chat');
     socket.emit('registered');
     io.sockets.in('chat').emit('nick', nick);
-    
-    // TODO
-    // on client connection, say that a new person enters the channel
-    // store nickname and set timed callback for a few seconds
-    // every few seconds, add to allotted characters, send to client
-    // (volatile packet, perhaps), set another timed callback
   });
 
-  socket.on('talk', function(text) {
-    socket.get('nick', function(err, nick) {
-      if (err) {
-        io.sockets.in('chat').emit('talk', 'error', text);
-      } else {
-        io.sockets.in('chat').emit('talk', nick, text);
-        socket.emit('recieved')
-      }
+  socket.on('talk', function (text) {
+    if (text.length > 0) {
+      socket.get('allotment', function (err, allotment) {
+        if (!err && allotment > 0) {
+          socket.get('nick', function (err, nick) {
+            if (!err) {
+              var sent = text.slice(0, allotment);
+              var remnants = text.slice(allotment);
+              io.sockets.in('chat').emit('talk', nick, sent);
+              socket.set('allotment', allotment-sent.length);
+              socket.emit('received', remnants);
+            }
+          });
+        }
+      });
+    }
+  });
+
+  socket.on('disconnect', function () {
+    socket.get('intid', function (err, intid) {
+      if (!err) clearInterval(intid);
     });
-  });
-
-  socket.on('disconnect', function() {
-    socket.get('nick', function(err, nick) {
+    socket.get('nick', function (err, nick) {
       if (!err) {
         io.sockets.in('chat').emit('left', nick);
       }

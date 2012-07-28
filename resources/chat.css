@@ -20,6 +20,7 @@ h3 {
     padding: 5px;
     width: 75%;
     height: 500px;
+    overflow-x: hidden;
     overflow-y: scroll;
 }
 
@@ -53,4 +54,11 @@ li.nick {
     padding: 5px;
     width: 75%;
     float: left;
+}
+
+#status {
+    margin: 5px 0 5px 5px;
+    padding: 5px;
+    float: left;
+    display: none;
 }
