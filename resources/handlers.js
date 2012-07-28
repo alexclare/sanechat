@@ -3,10 +3,12 @@ function handlers (socket) {
     $('#msgleft').text('Discourse:');
     $('#status').toggle();
     $('#message').empty();
+    $('#typed').text('0');
   });
 
   socket.on('received', function (rest) {
     $('#message').text(rest);
+    $('#typed').text($('#message').text().length);
   });
 
   socket.on('nick', function (nick) {
@@ -25,6 +27,7 @@ function handlers (socket) {
   });
 
   socket.on('allotment', function (allotment) {
+    // Change highlight here?
     $('#allotment').text(allotment);
   });
 }
